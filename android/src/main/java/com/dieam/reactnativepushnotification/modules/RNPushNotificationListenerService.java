@@ -26,6 +26,11 @@ import java.util.Random;
 import static com.dieam.reactnativepushnotification.modules.RNPushNotification.LOG_TAG;
 
 public class RNPushNotificationListenerService extends FirebaseMessagingService {
+    private FirebaseMessagingService service;
+
+    public RNPushNotificationListenerService(FirebaseMessagingService service) {
+        this.service = service != null ? service : this;
+    }
 
     @Override
     public void onMessageReceived(RemoteMessage message) {
@@ -79,7 +84,7 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
         handler.post(new Runnable() {
             public void run() {
                 // Construct and load our normal React JS code bundle
-                ReactInstanceManager mReactInstanceManager = ((ReactApplication) getApplication()).getReactNativeHost().getReactInstanceManager();
+                ReactInstanceManager mReactInstanceManager = ((ReactApplication) service.getApplication()).getReactNativeHost().getReactInstanceManager();
                 ReactContext context = mReactInstanceManager.getCurrentReactContext();
                 // If it's constructed, send a notification
                 if (context != null) {
@@ -136,11 +141,11 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
     }
 
     private boolean isApplicationInForeground() {
-        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) service.getApplication().getApplicationContext().getSystemService(ACTIVITY_SERVICE);
         List<RunningAppProcessInfo> processInfos = activityManager.getRunningAppProcesses();
         if (processInfos != null) {
             for (RunningAppProcessInfo processInfo : processInfos) {
-                if (processInfo.processName.equals(getApplication().getPackageName())) {
+                if (processInfo.processName.equals(service.getApplication().getPackageName())) {
                     if (processInfo.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
                         for (String d : processInfo.pkgList) {
                             return true;
