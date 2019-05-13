@@ -21,9 +21,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
 import com.facebook.react.bridge.ReadableMap;
-
+import android.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -67,7 +66,7 @@ public class RNPushNotificationHelper {
     }
 
     private PendingIntent toScheduleNotificationIntent(Bundle bundle) {
-        int notificationID = Integer.parseInt(bundle.getString("id"));
+        int notificationID = (int) Long.parseLong(bundle.getString("id"));
 
         Intent notificationIntent = new Intent(context, RNPushNotificationPublisher.class);
         notificationIntent.putExtra(RNPushNotificationPublisher.NOTIFICATION_ID, notificationID);
@@ -217,6 +216,10 @@ public class RNPushNotificationHelper {
                 notification.setGroup(group);
             }
 
+            // long eventTime = (long) bundle.getDouble("eventTime");
+            
+            // notification.setWhen(eventTime);
+
             notification.setContentText(bundle.getString("message"));
 
             String largeIcon = bundle.getString("largeIcon");
@@ -229,7 +232,7 @@ public class RNPushNotificationHelper {
 
             String numberString = bundle.getString("number");
             if (numberString != null) {
-                notification.setNumber(Integer.parseInt(numberString));
+                notification.setNumber((int) Long.parseLong(numberString));
             }
 
             int smallIconResId;
@@ -317,7 +320,7 @@ public class RNPushNotificationHelper {
                 }
             }
 
-            int notificationID = Integer.parseInt(notificationIdString);
+            int notificationID = (int) Long.parseLong(notificationIdString);
 
             PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationID, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
@@ -355,15 +358,18 @@ public class RNPushNotificationHelper {
                         continue;
                     }
 
-                    Intent actionIntent = new Intent(context, intentClass);
-                    actionIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    Intent actionIntent = new Intent();
+                    // Intent actionIntent = new Intent(context, intentClass);
+                    // actionIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     actionIntent.setAction(context.getPackageName() + "." + action);
 
                     // Add "action" for later identifying which button gets pressed.
                     bundle.putString("action", action);
                     actionIntent.putExtra("notification", bundle);
 
-                    PendingIntent pendingActionIntent = PendingIntent.getActivity(context, notificationID, actionIntent,
+                    // PendingIntent pendingActionIntent = PendingIntent.getActivity(context, notificationID, actionIntent,
+                    //         PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent pendingActionIntent = PendingIntent.getBroadcast(context, notificationID, actionIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     notification.addAction(icon, action, pendingActionIntent);
                 }
@@ -512,7 +518,7 @@ public class RNPushNotificationHelper {
         // removed it from the notification center
         NotificationManager notificationManager = notificationManager();
 
-        notificationManager.cancel(Integer.parseInt(notificationIDString));
+        notificationManager.cancel((int) Long.parseLong(notificationIDString));
     }
 
     private NotificationManager notificationManager() {
@@ -569,12 +575,15 @@ public class RNPushNotificationHelper {
             }
         }
 
-        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, this.config.getChannelName(), importance);
-        channel.setDescription(this.config.getChannelDescription());
-        channel.enableLights(true);
-        channel.enableVibration(true);
-
-        manager.createNotificationChannel(channel);
+        // bug fix related to NotificationChannel in android 8.1, API 26
+        NotificationChannel mChannel = manager.getNotificationChannel(NOTIFICATION_CHANNEL_ID);
+        if (mChannel == null) {
+            mChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, this.config.getChannelName(), NotificationManager.IMPORTANCE_MAX);
+            mChannel.setDescription(this.config.getChannelDescription());
+            mChannel.enableVibration(true);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            manager.createNotificationChannel(mChannel);
+        }
         channelCreated = true;
     }
 }

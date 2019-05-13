@@ -168,7 +168,8 @@ Notifications.localNotificationSchedule = function(details: Object) {
 			category: details.category,
 			soundName: soundName,
 			userInfo: details.userInfo,
-			repeatInterval: details.repeatType
+			repeatInterval: details.repeatType,
+			category: details.category,
 		};
 
 		if(details.number) {
@@ -321,10 +322,6 @@ Notifications.abandonPermissions = function() {
 Notifications.checkPermissions = function() {
 	return this.callNative('checkPermissions', arguments);
 };
-
-Notifications.registerNotificationActions = function() {
-	return this.callNative('registerNotificationActions', arguments)
-}
 
 Notifications.clearAllNotifications = function() {
 	// Only available for Android
