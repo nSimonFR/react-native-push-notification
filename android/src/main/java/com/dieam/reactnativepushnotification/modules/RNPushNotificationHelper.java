@@ -216,10 +216,6 @@ public class RNPushNotificationHelper {
                 notification.setGroup(group);
             }
 
-            // long eventTime = (long) bundle.getDouble("eventTime");
-            
-            // notification.setWhen(eventTime);
-
             notification.setContentText(bundle.getString("message"));
 
             String largeIcon = bundle.getString("largeIcon");

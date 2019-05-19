@@ -15,7 +15,6 @@ public class RNPushNotificationActionHandlerReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    
     if (intent == null || intent.getExtras() == null) {
       return;
     }

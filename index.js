@@ -323,6 +323,10 @@ Notifications.checkPermissions = function() {
 	return this.callNative('checkPermissions', arguments);
 };
 
+Notifications.registerNotificationActions = function() {
+	return this.callNative('registerNotificationActions', arguments)
+}
+
 Notifications.clearAllNotifications = function() {
 	// Only available for Android
 	return this.callNative('clearAllNotifications', arguments)

@@ -21,6 +21,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.dieam.reactnativepushnotification.modules.RNPushNotificationActionHandlerReceiver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,6 +96,17 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
                 mJsDelivery.sendEvent("remoteNotificationsRegistered", params);
             }
         }, intentFilter);
+    }
+
+    @ReactMethod
+    public void registerNotificationActions(ReadableArray actions) {
+        IntentFilter intentFilter = new IntentFilter();
+        // Add filter for each actions.
+        for (int i = 0; i < actions.size(); i++) {
+            String action = actions.getString(i);
+            intentFilter.addAction(getReactApplicationContext().getPackageName() + "." + action);
+        }
+        getReactApplicationContext().registerReceiver(new RNPushNotificationActionHandlerReceiver(), intentFilter);
     }
 
     @ReactMethod
